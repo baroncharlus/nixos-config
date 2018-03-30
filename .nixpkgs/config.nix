@@ -1,7 +1,7 @@
 {
   packageOverrides = pkgs: {
-    myVim = pkgs.vim_configurable.customize {
-      name = "myVim";
+    vix = pkgs.vim_configurable.customize {
+      name = "vix";
       vimrcConfig = {
         customRC = ''
           source $HOME/.vimrc
@@ -11,7 +11,9 @@
           { names = [
             "Syntastic"
             "vim-addon-nix"
+            "vim-airline"
             "youcompleteme"
+            "fugitive"
             ]; 
           }
         ];

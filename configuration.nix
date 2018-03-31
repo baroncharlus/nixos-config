@@ -42,8 +42,8 @@
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment = {
-      enableBashCompletion = true; 
       systemPackages = with pkgs; [
+      mkpasswd
       wget 
       vim
       git
@@ -58,19 +58,23 @@
       go
       python
       python3
-      vbam
       scrot
       sxiv
+      vbam
     ];
   };
 
   nixpkgs.config = {
     allowUnfree = true;
+#    this was just an experiment in pkg overrides.
+#    packageOverrides = pkgs:
+#      { vbam = pkgs.vbam.override { gtk = pkgs.gtk3; };
+#    };
   };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-  # programs.bash.enableCompletion = true;
+   programs.bash.enableCompletion = true;
   # programs.mtr.enable = true;
   # programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
 
@@ -98,7 +102,17 @@
 
   # Enable the KDE Desktop Environment.
   # services.xserver.displayManager.sddm.enable = true;
+  # services.xserver.windowManager.xmonad.enable = true;
    services.xserver.windowManager.i3.enable = true;
+
+   services.xserver.displayManager.slim = {
+     enable = true;
+     theme = pkgs.fetchurl {
+       url = "https://github.com/edwtjo/nixos-black-theme/archive/v1.0.tar.gz";
+       sha256 = "13bm7k3p6k7yq47nba08bn48cfv536k4ipnwwp1q1l2ydlp85r9d";
+     };
+   };
+
    services.xserver.displayManager.sessionCommands = ''
        xrdb "${pkgs.writeText  "xrdb.conf" ''
               URxvt.font:                 xft:Dejavu Sans Mono for Powerline:size=11, xft:Noto Emoji
@@ -181,10 +195,15 @@
         '';
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+   # disable because of public source control.
+   # users.mutableUsers = false;
    users.extraUsers.elliot = {
      isNormalUser = true;
      uid = 1000;
      extraGroups = [ "wheel" ];
+
+     # generated with mkpasswd -m sha-512. redacted for public src ctrl.
+     hashedPassword = "";
    };
 
    fonts = {

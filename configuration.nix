@@ -43,13 +43,17 @@
   # $ nix-env -qaP | grep wget
   environment = {
       systemPackages = with pkgs; [
+      xbacklight
+      zathura 
+      powertop
+      pasystray
       mkpasswd
       wget 
-      vim
       git
       unzip
       irssi
       chromium
+      firefox
       rxvt_unicode
       screen
       xterm
@@ -61,6 +65,8 @@
       scrot
       sxiv
       vbam
+      sqlite
+      (import ./vim.nix)
     ];
   };
 
@@ -74,9 +80,12 @@
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-   programs.bash.enableCompletion = true;
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = { enable = true; enableSSHSupport = true; };
+  programs.bash.enableCompletion = true;
+  programs.mtr.enable = true;
+  programs.gnupg.agent = { 
+    enable = true; 
+    # enableSSHSupport = true; 
+  };
 
   # List services that you want to enable:
 
@@ -98,12 +107,12 @@
   # services.xserver.xkbOptions = "eurosign:e";
 
   # Enable touchpad support.
-   services.xserver.libinput.enable = true;
+  services.xserver.libinput.enable = true;
 
   # Enable the KDE Desktop Environment.
   # services.xserver.displayManager.sddm.enable = true;
   # services.xserver.windowManager.xmonad.enable = true;
-   services.xserver.windowManager.i3.enable = true;
+  services.xserver.windowManager.i3.enable = true;
 
    services.xserver.displayManager.slim = {
      enable = true;

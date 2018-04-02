@@ -80,6 +80,8 @@ with import <nixpkgs> {};
           "vim-airline"
           "youcompleteme"
           "fugitive"
+          "vim-go"
+          "nerdtree"
           ]; }
       ];
 }

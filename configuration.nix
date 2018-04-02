@@ -42,30 +42,37 @@
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment = {
+     variables = { 
+       GOROOT = [ "${pkgs.go.out}/share/go" ]; 
+       GOPATH = [ "$HOME/go" ]; 
+     };
+
       systemPackages = with pkgs; [
-      xbacklight
-      zathura 
-      powertop
-      pasystray
-      mkpasswd
-      wget 
-      git
-      unzip
-      irssi
-      chromium
-      firefox
-      rxvt_unicode
-      screen
-      xterm
-      shellcheck
-      xsel
-      go
-      python
-      python3
-      scrot
-      sxiv
-      vbam
-      sqlite
+        xlibs.xbacklight
+        zathura 
+        powertop
+        iftop
+        htop
+        pasystray
+        mkpasswd
+        wget 
+        git
+        unzip
+        irssi
+        chromium
+        firefox
+        rxvt_unicode
+        screen
+        xterm
+        shellcheck
+        xsel
+        go
+        python
+        python3
+        scrot
+        sxiv
+        vbam
+        sqlite
       (import ./vim.nix)
     ];
   };
@@ -81,6 +88,7 @@
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.bash.enableCompletion = true;
+  programs.bash.loginShellInit = "#!${pkgs.bash.out}/bin/bash \n export GOPATH=$HOME/go";
   programs.mtr.enable = true;
   programs.gnupg.agent = { 
     enable = true; 
@@ -210,7 +218,6 @@
      isNormalUser = true;
      uid = 1000;
      extraGroups = [ "wheel" ];
-
      # generated with mkpasswd -m sha-512. redacted for public src ctrl.
      hashedPassword = "";
    };

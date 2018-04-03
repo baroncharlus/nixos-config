@@ -73,6 +73,7 @@
         sxiv
         vbam
         sqlite
+        duplicity
       (import ./vim.nix)
     ];
   };

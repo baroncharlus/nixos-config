@@ -20,7 +20,7 @@
   boot.initrd.luks.devices = [
     {
       name = "root";
-      device = "/dev/disk/by-uuid/2592d513-04ad-4e44-b6d7-ac189dc336ad";
+      device = "/dev/disk/by-uuid/8d3b4d40-fb39-4064-89b3-ece594cba5f3";
       preLVM = true;
       allowDiscards = true;
     }
@@ -28,6 +28,8 @@
 
   networking.hostName = "nixos"; # Define your hostname.
   networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking.extraResolvconfConf = "resolvconf=NO";
+  networking.dnsExtensionMechanism = false; # disable edns0
 
    #Select internationalisation properties.
    i18n = {
@@ -45,36 +47,55 @@
      variables = { 
        GOROOT = [ "${pkgs.go.out}/share/go" ]; 
        GOPATH = [ "$HOME/go" ]; 
+       EDITOR = [ "vim" ];
      };
 
       systemPackages = with pkgs; [
+
+        # X
+        i3
         xlibs.xbacklight
-        zathura 
+        xautolock
+        xsel
+        xterm
+
+        # backup
+        restic
+
+        # sysutil
         powertop
         iftop
         htop
-        pasystray
         mkpasswd
-        wget 
-        git
         unzip
-        irssi
-        chromium
-        firefox
-        rxvt_unicode
-        screen
-        xterm
-        shellcheck
-        xsel
+
+        # dev
+        git
         go
+        sqlite
+        gnumake
         python
         python3
-        scrot
-        sxiv
+
+        # audio
+        pasystray
         vbam
-        sqlite
-        duplicity
-      (import ./vim.nix)
+
+        # img
+        scrot
+        zathura 
+        sxiv
+
+        # shell
+        irssi
+        rxvt_unicode
+        shellcheck
+        screen
+        (import ./vim.nix)
+
+        # web
+        wget 
+        firefox
     ];
   };
 
@@ -89,7 +110,11 @@
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   programs.bash.enableCompletion = true;
-  programs.bash.loginShellInit = "#!${pkgs.bash.out}/bin/bash \n export GOPATH=$HOME/go";
+  programs.bash.loginShellInit = ''
+    #!${pkgs.bash.out}/bin/bash
+    export GOPATH=$HOME/go
+    export EDITOR=vim
+  '';
   programs.mtr.enable = true;
   programs.gnupg.agent = { 
     enable = true; 
@@ -99,7 +124,40 @@
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
+   services.openssh.enable = true;
+   services.stubby.enable = true;
+   services.stubby.listenAddresses = [ "127.0.0.1@8053" "0::1@8053" ];
+   services.stubby.extraConfig = ''
+   dnssec_return_status: GETDNS_EXTENSION_TRUE
+   '';
+
+
+   services.unbound = {
+     enable = true;
+     allowedAccess = [
+       "192.168.1.1/24"
+     ];
+     extraConfig = ''
+       hide-identity: yes
+       hide-version: yes
+       qname-minimisation: yes
+       harden-short-bufsize: yes
+       harden-large-queries: yes
+       harden-glue: yes
+       harden-dnssec-stripped: yes
+       harden-below-nxdomain: yes
+       harden-referral-path: yes
+       use-caps-for-id: yes
+       do-not-query-localhost: no
+     forward-zone:
+       name: "."
+         forward-addr: 127.0.0.1@8053
+     '';
+   };
+   services.cron.enable = true;
+   services.cron.systemCronJobs = [
+     "0 0 * * * elliot restic backup ~"
+   ];
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -220,7 +278,7 @@
      uid = 1000;
      extraGroups = [ "wheel" ];
      # generated with mkpasswd -m sha-512. redacted for public src ctrl.
-     hashedPassword = "";
+     # hashedPassword = "";
    };
 
    fonts = {
